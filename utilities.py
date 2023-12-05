@@ -1,15 +1,21 @@
+# github.com/n0nexist/ApkTear
+# utilities.py
+
 import subprocess
 import os
 from loguru import logger
 import shutil
 from colorama import Fore, Style, init
+from tkinter import messagebox
+from threading import Thread as th
 
-init()
+init()  # initialize colorama
 
 author = "github.com/n0nexist"
-version = "1.1"
+version = "1.1.1"
 
 def getLogo():
+    # function to return the ApkTear logo
     return f"""{Fore.CYAN}
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 $$$$$$$$$$$$$$$$$ $$$$$$$$$$$$$$$$ $$$$$$$$$$$$$$$
@@ -23,7 +29,7 @@ $$$$$$$$$$$$                           $$$$$$$$$$$
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 $$$$$   $$$$$                          $$$$    $$$
 $$$$      $$          {Style.BRIGHT}{Fore.WHITE}ApkTear{Style.RESET_ALL}{Fore.CYAN}           $$      $$
-$$$$      $$        {Style.BRIGHT}{Fore.WHITE}Version: {version}{Style.RESET_ALL}{Fore.CYAN}        $$      $$
+$$$$      $$        {Style.BRIGHT}{Fore.WHITE}Version: {version}{Style.RESET_ALL}{Fore.CYAN}      $$      $$
 $$$$      $$   {Style.BRIGHT}{Fore.WHITE}By: {author}{Style.RESET_ALL}{Fore.CYAN}  $$      $$
 $$$$      $$                            $$      $$
 $$$$      $$                            $$      $$
@@ -40,6 +46,15 @@ $$$$$$$$$$$$$$$$$      $$$$$$     $$$$$$$$$$$$$$$$
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     """
 
+# function to display a popup window
+def popUpWindowFunction(title, message):
+    messagebox.showinfo(title, message)
+
+# function to start a thread for displaying a popup window
+def popUpWindow(title, message):
+    th(target=popUpWindowFunction, args=(title,message,)).start()
+
+# function to check if a file exists
 def fileExists(path):
     if os.path.exists(path) == False:
         logger.critical(f"\"{path}\" Does not exist.")
@@ -50,9 +65,11 @@ def fileExists(path):
 
     return True
 
+# function to parse the file path
 def parsePath(path):
     return os.path.split(path)[-1]
 
+# function to sign an APK
 def signApk(path):
     command = [
         "java", "-jar", os.path.join("Dependencies","apksigner.jar"), "sign",
@@ -93,12 +110,14 @@ def signApk(path):
 
     shutil.move(f"{path}.idsig", output)
 
+# function to clean up temporary files
 def cleanUpFramePath():
     logger.info("Cleaning up")
 
     if os.path.exists("tempframepath"):
         shutil.rmtree("tempframepath")
 
+# function to decompile an APK
 def decompApk(path):
     logger.info(f"Decompiling \"{path}\"")
 
@@ -116,6 +135,7 @@ def decompApk(path):
 
     logger.success("Decompiled!")
 
+# function to recompile an APK
 def compApk(path):
     logger.info(f"Recompiling \"{path}\"")
 
@@ -133,9 +153,11 @@ def compApk(path):
 
     logger.success("Recompiled!")
 
+# function to get user input
 def getInput(text):
     return input(f"{Fore.CYAN}{Style.BRIGHT}{text}{Fore.WHITE}{Style.DIM}>{Style.NORMAL} ")
 
+# function to clear ApkTear's folders
 def clearFolders():
     logger.warning("THIS ACTION IS NOT REVERSIBLE!")
     if getInput("Type \"YES\" to clear ApkTear's folders")=="YES":
@@ -144,9 +166,24 @@ def clearFolders():
         folders = ["Built_Apks", "Decompiled_Apks", "Signed_Apks"]
 
         for folder in folders:
-            logger.debug(f"Clearing folder \"{folder}\"")
-            shutil.rmtree(folder)
-            os.mkdir(folder)
+
+            if len(os.listdir(folder))==0:
+                logger.warning(f"Folder \"{folder}\" is already empty")
+
+            else:
+                logger.debug(f"Clearing folder \"{folder}\"")
+
+                try:
+                    shutil.rmtree(folder)
+                except PermissionError:
+                    logger.error(f"Cannot delete folder \"{folder}\" as it may be used by another process")
+                except FileNotFoundError:
+                    logger.warning(f"Cannot delete folder \"{folder}\" as it doesn't exist")
+
+                try:
+                    os.mkdir(folder)
+                except FileExistsError:
+                    logger.warning(f"Cannot create folder \"{folder}\" as it already exists")
 
         logger.success("Done!")
     

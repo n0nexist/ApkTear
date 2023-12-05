@@ -11,6 +11,8 @@ init()  # initialize colorama
 
 print(ut.getLogo())  # print the logo
 
+ut.initFolders() # creates ApkTear's folders
+
 # start a loop for command inputs
 while True:
     cmd = getInput("ApkTear")  # get user input for commands

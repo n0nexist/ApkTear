@@ -157,15 +157,22 @@ def compApk(path):
 def getInput(text):
     return input(f"{Fore.CYAN}{Style.BRIGHT}{text}{Fore.WHITE}{Style.DIM}>{Style.NORMAL} ")
 
+apktearfolders = ["Built_Apks", "Decompiled_Apks", "Signed_Apks"]
+
+# function to init ApkTear's folders
+def initFolders():
+    for folder in apktearfolders:
+        if os.path.exists(folder)==False:
+            logger.debug(f"Creating folder \"{folder}\" as it doesen't exist")
+            os.mkdir(folder)
+
 # function to clear ApkTear's folders
 def clearFolders():
     logger.warning("THIS ACTION IS NOT REVERSIBLE!")
     if getInput("Type \"YES\" to clear ApkTear's folders")=="YES":
         logger.info("Deleting everything...")
 
-        folders = ["Built_Apks", "Decompiled_Apks", "Signed_Apks"]
-
-        for folder in folders:
+        for folder in apktearfolders:
 
             if len(os.listdir(folder))==0:
                 logger.warning(f"Folder \"{folder}\" is already empty")

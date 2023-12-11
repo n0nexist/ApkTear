@@ -12,7 +12,7 @@ from threading import Thread as th
 init()  # initialize colorama
 
 author = "github.com/n0nexist"
-version = "1.1.1"
+version = "1.1.2"
 
 def getLogo():
     # function to return the ApkTear logo
@@ -71,6 +71,15 @@ def parsePath(path):
 
 # function to sign an APK
 def signApk(path):
+
+    output = os.path.join("Signed_Apks",parsePath(path))
+
+    shutil.copyfile(path, output)
+
+    path = output
+
+    logger.debug(f"Output will be: \"{path}\"")
+
     command = [
         "java", "-jar", os.path.join("Dependencies","apksigner.jar"), "sign",
         "--ks", os.path.join("Dependencies","ReleaseKey.keystore"),
@@ -103,12 +112,6 @@ def signApk(path):
     else:
         logger.error("Error occurred during signing")
         return
-
-    output = os.path.join("Signed_Apks",parsePath(path).replace('.idsig',''))
-
-    logger.debug(f"Output will be: \"{output}\"")
-
-    shutil.move(f"{path}.idsig", output)
 
 # function to clean up temporary files
 def cleanUpFramePath():
